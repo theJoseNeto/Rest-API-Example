@@ -1,5 +1,5 @@
 const { Model, DataTypes } = require("sequelize");
-const { hash } = require("bcrypt");
+const { hash, compare } = require("bcrypt");
 class User extends Model {
     static init(sequelize) {
         super.init({
@@ -39,12 +39,16 @@ class User extends Model {
 
         this.addHook('beforeSave', async (user) => {
             if (user.password) {
-              user.password_hash = await hash(user.password, 8);
+                user.password_hash = await hash(user.password, 8);
             }
-          });
-      
-          return this;
+        });
+
+        return this;
     };
+
+    passwordIsValid(password) {
+        return compare(password, this.password_hash);
+    }
 };
 
 module.exports = User;
